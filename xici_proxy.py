@@ -29,7 +29,7 @@ def crawl_XiCi():
 
 
 if __name__ == '__main__':
-
+    # use your data
     host = 'localhost'
     user = 'root'
     passwd = '7873215'

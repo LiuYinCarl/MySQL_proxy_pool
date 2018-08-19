@@ -70,17 +70,3 @@ class MySQL_conn:
 
     def __del__(self):
         self.conn.close()
-
-
-if __name__ == '__main__':
-    host = 'localhost'
-    user = 'root'
-    passwd = ''
-    port = 3306
-    databese = ''
-
-    db = MySQL_conn(host, user, passwd, port, databese)
-    sql = 'SELECT * FROM bilibili_user_info'
-    result = db.select(sql)
-    for i in result:
-        print(i)
