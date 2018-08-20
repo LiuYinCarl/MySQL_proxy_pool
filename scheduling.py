@@ -11,6 +11,7 @@ class MySQLProxyPool(object):
         # xici.run_crawl_xici(table)
         check = MySQLProxyCheck()
         check.run_test_http_proxy(table)
+        check.delete_unavailable_http_proxy(table)
 
 
 class MongoDBProxyPool(object):

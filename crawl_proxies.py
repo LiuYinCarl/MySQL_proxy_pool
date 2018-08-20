@@ -16,20 +16,23 @@ class Crawl(object):
         """
         获取西刺代理
         """
-        url = 'http://www.xicidaili.com/'
-        try:
-            response = requests.get(url, headers=self.headers)
-            if response.status_code == 200:
-                pattern_1 = re.compile('(<tr.*?</tr>)', re.S)
-                pattern_2 = re.compile('<td>(.*?)</td>', re.S)
-                results = re.findall(pattern_1, response.text)
-                for result in results:
-                    elements = re.findall(pattern_2, result)
-                    if elements:
-                        print(':'.join([elements[0], elements[1], elements[2], elements[3]]))
-                        yield elements[0], elements[1], elements[2], elements[3]
-        except ConnectionError as e:
-            print('Connection Error', e.args)
+        url = 'http://www.xicidaili.com/nn/'
+        for i in range(1, 50):
+            real_url = url + str(i)
+            try:
+                time.sleep(5)
+                response = requests.get(real_url, headers=self.headers)
+                if response.status_code == 200:
+                    pattern_1 = re.compile('(<tr.*?</tr>)', re.S)
+                    pattern_2 = re.compile('<td>(.*?)</td>', re.S)
+                    results = re.findall(pattern_1, response.text)
+                    for result in results:
+                        elements = re.findall(pattern_2, result)
+                        if elements:
+                            print([elements[0], elements[1], elements[3]])
+                            yield elements[0], elements[1], elements[3]
+            except ConnectionError as e:
+                print('Connection Error', e.args)
 
     def run_crawl_xici(self, table):
         db = MySQLConfig().get_data()
@@ -40,8 +43,7 @@ class Crawl(object):
                 for items in self.__crawl_xici():
                     data = {'ip': items[0],
                             'port': items[1],
-                            'position': items[2],
-                            'protocol': items[3],
+                            'protocol': items[2],
                             'score': 100
                             }
                     conn.update(data, table)

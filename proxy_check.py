@@ -4,7 +4,7 @@ import time
 from db_conn import MySQLConn
 from db_config import MySQLConfig
 
-TEST_URL = 'http://www.baidu.com'
+TEST_URL = 'https://www.baidu.com'
 VALID_STATUS_CODES = [200]
 
 
@@ -28,14 +28,14 @@ class MySQLProxyCheck(object):
                 async with session.get(TEST_URL, proxy=http_proxy, timeout=15) as response:
                     if response.status in VALID_STATUS_CODES:
                         print("%s is available" % proxy[0])
-                        sql = "UPDATE %s SET score = score-10 WHERE ip = '%s'" % (table, proxy[0])
+                        sql = "UPDATE %s SET score = 100 WHERE ip = '%s'" % (table, proxy[0])
                         self.conn.update(sql, None)
                     else:
                         print("%s is unavailable" % proxy[0])
-                        sql = "UPDATE %s SET score = score-10 WHERE ip = '%s'" % (table, proxy[0])
+                        sql = "UPDATE %s SET score = score-2 WHERE ip = '%s'" % (table, proxy[0])
                         self.conn.update(sql, None)
             except Exception as e:
-                sql = "UPDATE %s SET score = score-10 WHERE ip = '%s'" % (table, proxy[0])
+                sql = "UPDATE %s SET score = score-2 WHERE ip = '%s'" % (table, proxy[0])
                 self.conn.update(sql, None)
                 print('proxy request error: ', e.args)
 
@@ -57,6 +57,24 @@ class MySQLProxyCheck(object):
         """
         pass
 
+    def delete_unavailable_http_proxy(self, table):
+        """
+        :param table:
+        :return:
+        """
+        sql = "SELECT ip, score FROM {0} WHERE protocol = 'HTTP'".format(table)
+        try:
+            for proxies in self.conn.select(sql):
+                proxies = list(proxies)
+                for proxy in proxies:
+                    print('score' + str(proxy[1]))
+                    if proxy[1] <= 0:
+                        sql2 = "DELETE FROM %s WHERE ip = '%s'" %(table, proxy[0])
+                        self.conn.delete(sql2)
+        except Exception as e:
+            print('delete_unavailable_http_proxy error: ', e.args)
+            pass
+
     def run_test_http_proxy(self, table):
         """
         :return: None
@@ -67,11 +85,9 @@ class MySQLProxyCheck(object):
                 proxies = list(proxies)
                 print(proxies)
                 loop = asyncio.get_event_loop()
-                # for i in range(0, 100, BATCH_TEST_SIZE):
-                # test_proxys = [proxy for proxy in proxies[i: i + BATCH_TEST_SIZE]]
                 tasks = [self.__test_http_proxy(proxy, table) for proxy in proxies]
                 loop.run_until_complete(asyncio.wait(tasks))
-                time.sleep(5)
+                time.sleep(15)
         except Exception as e:
             print('Tester error: ', e.args)
 
