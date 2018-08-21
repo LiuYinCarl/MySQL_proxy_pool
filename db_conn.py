@@ -64,7 +64,7 @@ class MySQLConn(object):
         try:
             cursor.execute(sql)
             # every time return 50 rows
-            rows = cursor.fetchmany(5)
+            rows = cursor.fetchmany(50)
             while rows:
                 yield rows
                 rows = cursor.fetchmany(50)

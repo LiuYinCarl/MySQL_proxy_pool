@@ -4,7 +4,7 @@ import time
 from db_conn import MySQLConn
 from db_config import MySQLConfig
 
-TEST_URL = 'https://www.baidu.com'
+TEST_URL = 'https://www.bilibili.com/'
 VALID_STATUS_CODES = [200]
 
 
@@ -67,7 +67,7 @@ class MySQLProxyCheck(object):
             for proxies in self.conn.select(sql):
                 proxies = list(proxies)
                 for proxy in proxies:
-                    print('score' + str(proxy[1]))
+                    # print('score' + str(proxy[1]))
                     if proxy[1] <= 0:
                         sql2 = "DELETE FROM %s WHERE ip = '%s'" %(table, proxy[0])
                         self.conn.delete(sql2)
